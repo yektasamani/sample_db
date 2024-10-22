@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  id             Int          @id @default(autoincrement())
+  name           String
+  country        String?
+  state          String?
+  createdAt      DateTime     @default(now())
+  events         Event[]
+  measurments    Measurment[]
+  weatherRecords Record[]
+}
+
+model Measurment {
+  id              Int     @id @default(autoincrement())
+  stationId       Int
+  measurementType String
+  station         Station @relation(fields: [stationId], references: [id])
+}
+
+model Record {
+  id            Int      @id @default(autoincrement())
+  stationId     Int
+  recordedAt    DateTime
+  temperature   Float?
+  precipitation Float?
+  humidity      Float?
+  station       Station  @relation(fields: [stationId], references: [id])
+}
+
+model weatherTypes {
+  id       Int     @id @default(autoincrement())
+  typeName String  @unique
+  events   Event[]
+}
+
+model Event {
+  id           Int          @id @default(autoincrement())
+  stationId    Int
+  weatherId    Int
+  date         DateTime
+  station      Station      @relation(fields: [stationId], references: [id])
+  weatherTypes weatherTypes @relation(fields: [weatherId], references: [id])
+}
